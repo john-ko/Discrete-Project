@@ -6,10 +6,12 @@
 #include <tuple>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits>
 #include "time.h"
+#include "Move.h";
 
-int MAX = 999999999;
-int MIN = -999999999;
+int MAX = std::numeric_limits<int>::max();
+int MIN = std::numeric_limits<int>::min();
 int MAXDEPTH = 100000;
 int WINNER = 9999;
 clock_t TIME1;
@@ -51,8 +53,9 @@ void AIShell::evaluatePoints(int tempCounter, int& score)
 	if(tempCounter == k - 1)
 		score = 12;	
 }
+
 void AIShell::VerticalWins(int** state, int col, int row, int turn, int& count, int& score)
-{	
+{
 	
 	// int tempCol = col; int tempRow = row;
 	bool bottomBlocked = false; bool topBlocked = false;
@@ -299,6 +302,25 @@ bool checkForWin(int score)
 	return false;
 }
 
+int** AIShell::clone(int** gamestate) {
+	int** clone = new int*[numCols];
+	for(int i=0; i<numCols; i++) {
+		clone[i] = new int[numRows];
+		for(int j=0; j<numRows; j++) {
+			clone[i][j] = gamestate[i][j];
+		}
+	}
+	return clone;
+}
+
+void AIShell::removeClone(int** gamestate) {
+	for (int i=0; i<numCols; i++) {
+		delete[] gamestate[i];
+	}
+
+	delete[] gamestate;
+}
+
 int AIShell::countTotalWins(int** state, int turn) 
 {
 	int aiScore = 0; int otherScore = 0;
@@ -393,57 +415,110 @@ std::vector<Move> AIShell::availableMoves(int** state){
 			}
 	}
 	return moveVector;
-}	
+}
 
-Move AIShell::makeMove(){
- 	Move m;
- 	// if(AVILABLEMOVES == -1)
- 	// 	initializeGlobalMoves(AVILABLEMOVES);
- 	++moves;
- 	m = SearchForMove(gameState);
+
+
+Move AIShell::makeMove() {
+	return iterativeDeepening(1, gameState, 1, 1, 1);
+}
+
+Move AIShell::SearchForMove(int** state) {
+	std::vector<Move> moveVector = availableMoves(state);
+	for(Move m : moveVector) {
+
+	}
+
+	Move m;
 	return m;
 }
-Move AIShell::SearchForMove(int** state)
-{
+
+Move AIShell::iterativeDeepening(int depth, int** state, int turn, int alpha, int beta) {
+
+	Move m;
+	// base case
+	if (depth == 0) {
+		// return Move
+		std::cout << "BASE CASE" << std::endl;
+		return m;
+	}
+
+	// recursion
 	std::vector<Move> moveVector = availableMoves(state);
-	if(moveVector.size() <=2)
-		return moveVector[0];
-	if(moveVector.size() == numRows * numCols || moveVector.size() == numRows * numCols - 1)
-	{
-		if(state[numCols/2][numRows/2] == NO_PIECE)
-			return Move(numCols/2, numRows/2);
-		else
-			return Move(numCols/2 - 1, numRows/2 - 1);
+
+	for(Move m : moveVector) {
+		int **gameClone = clone(state);
+		
+		// put move
+		gameClone[m.col][m.row] = 1;
+		std::cout << "move: [" << m.col << "] [" << m.row << "]" << std::endl;
+
+		m = iterativeDeepening(depth-1, gameClone, turn+1, beta, alpha);
+
+		removeClone(gameClone);
+		// or gameClone[m.col][m.row] = NO_PIECE
 	}
-	TIME1 = clock();
-	for(int depth = 1; depth < MAXDEPTH; depth++)
-	{
-		Move m = iterativeDeepening(depth, state, 0, MIN, MAX);
-		if(m.score != 0)
-			return m;
-	}
+	//return move
+	return m;
 }
+
+
+
+
+// Move AIShell::makeMove(){
+//  	Move m;
+//  	// if(AVILABLEMOVES == -1)
+//  	// 	initializeGlobalMoves(AVILABLEMOVES);
+//  	++moves;
+//  	m = SearchForMove(gameState);
+// 	return m;
+// }
+
+// Move AIShell::SearchForMove(int** state)
+// {
+// 	std::vector<Move> moveVector = availableMoves(state);
+// 	if(moveVector.size() <=2)
+// 		return moveVector[0];
+// 	if(moveVector.size() == numRows * numCols || moveVector.size() == numRows * numCols - 1)
+// 	{
+// 		if(state[numCols/2][numRows/2] == NO_PIECE)
+// 			return Move(numCols/2, numRows/2);
+// 		else
+// 			return Move(numCols/2 - 1, numRows/2 - 1);
+// 	}
+// 	TIME1 = clock();
+// 	for(int depth = 1; depth < MAXDEPTH; depth++)
+// 	{
+// 		Move m = iterativeDeepening(depth, state, 0, MIN, MAX);
+// 		if(m.score != 0)
+// 			return m;
+// 	}
+// }
+
+
+
 bool triggered()
 {
 	if((float)(clock() - TIME1)/CLOCKS_PER_SEC > 4) //seconds
 		return true;
 	return false;
 }
-Move AIShell::iterativeDeepening(int depth, int** state, int turn, int alpha, int beta)
-{
-	int count = 0;
-	Move m = miniMax(state, depth, turn, alpha, beta);
-	if(m.score >= WINNER || m.score == -1 || triggered())
-		return m;
-	if(depth > 0) 
-	{
-		Move move = iterativeDeepening(depth - 1, state, turn, alpha, beta);
-		if(move.score != 0)
-			return move;
-	}
-	m.score = 0;
-	return m;
-}
+
+// Move AIShell::iterativeDeepening(int depth, int** state, int turn, int alpha, int beta)
+// {
+// 	int count = 0;
+// 	Move m = miniMax(state, depth, turn, alpha, beta);
+// 	if(m.score >= WINNER || m.score == -1 || triggered())
+// 		return m;
+// 	if(depth > 0) 
+// 	{
+// 		Move move = iterativeDeepening(depth - 1, state, turn, alpha, beta);
+// 		if(move.score != 0)
+// 			return move;
+// 	}
+// 	m.score = 0;
+// 	return m;
+// }
 
 Move AIShell::miniMax(int** state, int depth, int turn, int alpha, int beta){
 	std::vector<Move> moveVector = availableMoves(state);

@@ -15,5 +15,3 @@ Move::Move(int col, int row){
 Move::Move(int score){
 	this->score = score;
 }
-
-
