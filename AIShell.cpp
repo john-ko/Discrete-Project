@@ -55,11 +55,11 @@ void AIShell::getBestMove(int** gameState, std::vector<Move> moves) {
 
 }
 
-
-
-void AIShell::isPointlessMove(Move move, char turn) {
-	// move.col;
-	// move.row;
+bool AIShell::checkDiagnals(int** gameState, Move move) {
+	bool isFork = false;
+	int n = k;
+	int col = 0;
+	int row = 0;
 
 	std::vector<std::pair<int, int>> directions = {
 		// north south east west
@@ -75,10 +75,109 @@ void AIShell::isPointlessMove(Move move, char turn) {
 		std::make_pair(-1, -1)
 	};
 
-	for(std::pair<int, int> p: directions) {
 
+	for (std::pair<int, int> pair: directions) {
+		col = pair.first;
+		row = pair.second;
+	}
+
+	// given Move move;
+
+	
+	// find each diagnal withing k distance/ or out of bounds
+
+	return isFork;
+}
+
+std::vector<std::pair<int,int>> AIShell::getDirections() {
+	std::vector<std::pair<int, int>> directions = {
+		// north south east west
+		std::make_pair(1, 0),
+		std::make_pair(-1, 0),
+		std::make_pair(0, 1),
+		std::make_pair(0, -1),
+
+		// NE NW SE SW
+		std::make_pair(1, 1),
+		std::make_pair(1, -1),
+		std::make_pair(-1, 1),
+		std::make_pair(-1, -1)
+	};
+	return directions;
+}
+
+void AIShell::checkDirections() {
+	bool isFork = false;
+	int forks = 0;
+	int n;
+	int col;
+	int row;
+	int player;
+	int count;
+	Move move(2,2);
+
+	for(std::pair<int,int> pair: getDirections()) {
+		n = k;
+		col = pair.first + move.col;
+		row = pair.second + move.row;
+		count = 1;
+
+		while(inBounds(col, row) && n >= 0) {
+
+			// check
+			player = getGameState()[col][row];
+
+			switch(player) {
+				case AIShell::NO_PIECE:
+					break;
+				case AIShell::AI_PIECE:
+					count++;
+					break;
+				case AIShell::HUMAN_PIECE:
+					break;
+				default:
+					break;
+			}
+
+
+
+			// increment
+			col += pair.first;
+			row += pair.second;
+			n--;
+		}
 	}
 }
+
+// void AIShell::isPointlessMove(Move move, char turn) {
+// 	// move.col;
+// 	// move.row;
+
+// 	int n;
+
+// 	std::vector<std::pair<int, int>> directions = {
+// 		// north south east west
+// 		std::make_pair(1, 0),
+// 		std::make_pair(-1, 0),
+// 		std::make_pair(0, 1),
+// 		std::make_pair(0, -1),
+
+// 		// NE NW SE SW
+// 		std::make_pair(1, 1),
+// 		std::make_pair(1, -1),
+// 		std::make_pair(-1, 1),
+// 		std::make_pair(-1, -1)
+// 	};
+
+// 	for(std::pair<int, int> p: directions) {
+// 		n = k;
+
+// 	}
+// }
+
+	bool AIShell::inBounds(int col, int row) {
+		return col >=0 && row >= 0 && col < numCols && row < numRows;
+	}
 
 	int AIShell::getCols() {
 		return numCols;

@@ -39,8 +39,15 @@ public:
 
 	std::vector<Move> getAllAvailableMoves(int** board);
 
-	void isPointlessMove(Move move, char turn);
+	// void isPointlessMove(Move move, char turn);
 	void getBestMove(int** gameState, std::vector<Move> moves);
+	bool checkDiagnals(int** gameState, Move move);
+	bool inBounds(int, int);
+	std::vector<std::pair<int,int>> getDirections();
+	void checkDirections();
+
+
+
 
 
 	// getters
