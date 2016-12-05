@@ -55,40 +55,6 @@ void AIShell::getBestMove(int** gameState, std::vector<Move> moves) {
 
 }
 
-bool AIShell::checkDiagnals(int** gameState, Move move) {
-	bool isFork = false;
-	int n = k;
-	int col = 0;
-	int row = 0;
-
-	std::vector<std::pair<int, int>> directions = {
-		// north south east west
-		std::make_pair(1, 0),
-		std::make_pair(-1, 0),
-		std::make_pair(0, 1),
-		std::make_pair(0, -1),
-
-		// NE NW SE SW
-		std::make_pair(1, 1),
-		std::make_pair(1, -1),
-		std::make_pair(-1, 1),
-		std::make_pair(-1, -1)
-	};
-
-
-	for (std::pair<int, int> pair: directions) {
-		col = pair.first;
-		row = pair.second;
-	}
-
-	// given Move move;
-
-	
-	// find each diagnal withing k distance/ or out of bounds
-
-	return isFork;
-}
-
 std::vector<std::pair<int,int>> AIShell::getDirections() {
 	std::vector<std::pair<int, int>> directions = {
 		// north south east west
@@ -106,90 +72,104 @@ std::vector<std::pair<int,int>> AIShell::getDirections() {
 	return directions;
 }
 
-void AIShell::checkDirections() {
+
+
+void AIShell::checkDirections(int** state) {
 	bool isFork = false;
 	int forks = 0;
 	int n;
 	int col;
 	int row;
 	int player;
+	int reverseDirection;
 	int count;
+	int current;
+	bool blocked;
+	bool gap;
 	Move move(2,2);
+
+	current = state[move.col][move.row];
 
 	for(std::pair<int,int> pair: getDirections()) {
 		n = k;
 		col = pair.first + move.col;
 		row = pair.second + move.row;
 		count = 1;
-
+		blocked = false;
+		gap = false;
+		reverseDirection = getPlayer(state, getOpposite(pair));
 		while(inBounds(col, row) && n >= 0) {
 
 			// check
-			player = getGameState()[col][row];
+			player = state[col][row];
 
-			switch(player) {
-				case AIShell::NO_PIECE:
-					break;
-				case AIShell::AI_PIECE:
-					count++;
-					break;
-				case AIShell::HUMAN_PIECE:
-					break;
-				default:
-					break;
+			if (current == player) {
+				count++;
+			} else if (player == AIShell::NO_PIECE) {
+				gap = true;
+				// skip
+			} else {
+				blocked = true;
+				// blocked?
+				break;
 			}
-
-
 
 			// increment
 			col += pair.first;
 			row += pair.second;
 			n--;
 		}
+
+		if ((k-2) == count && !blocked && !gap) {
+			// must be blocked!
+		} else if ((k-1) == count && !blocked && gap) {
+
+		}
 	}
 }
 
-// void AIShell::isPointlessMove(Move move, char turn) {
-// 	// move.col;
-// 	// move.row;
+std::pair<int, int> AIShell::getOpposite(std::pair<int, int> pair) {
+	return getOpposite(pair.first, pair.second);
+}
 
-// 	int n;
+std::pair<int,int> AIShell::getOpposite(int col, int row) {
+	col = col * -1;
+	row = row * -1;
+	return std::make_pair(col,row);
+}
 
-// 	std::vector<std::pair<int, int>> directions = {
-// 		// north south east west
-// 		std::make_pair(1, 0),
-// 		std::make_pair(-1, 0),
-// 		std::make_pair(0, 1),
-// 		std::make_pair(0, -1),
 
-// 		// NE NW SE SW
-// 		std::make_pair(1, 1),
-// 		std::make_pair(1, -1),
-// 		std::make_pair(-1, 1),
-// 		std::make_pair(-1, -1)
-// 	};
-
-// 	for(std::pair<int, int> p: directions) {
-// 		n = k;
-
-// 	}
-// }
-
-	bool AIShell::inBounds(int col, int row) {
-		return col >=0 && row >= 0 && col < numCols && row < numRows;
+int AIShell::getPlayer(int** state, int col, int row) {
+	if (inBounds(col, row)) {
+		return state[col][row];
 	}
 
-	int AIShell::getCols() {
-		return numCols;
+	// raise exception?
+	return OUT_OF_BOUNDS;
+}
+
+int AIShell::getPlayer(int** state, std::pair<int,int> pair) {
+	if(inBounds(pair.first, pair.second)) {
+		return state[pair.first][pair.second];
 	}
 
-	int AIShell::getRows() {
-		return numRows;
-	}
+	return OUT_OF_BOUNDS;
+}
+bool AIShell::inBounds(int col, int row) {
+	return col >=0 && row >= 0 && col < numCols && row < numRows;
+}
 
-	int** AIShell::getGameState() const {
-		return gameState;
-	}
+int AIShell::getCols() {
+	return numCols;
+}
+
+int AIShell::getRows() {
+	return numRows;
+}
+
+int** AIShell::getGameState() const {
+	return gameState;
+}
 
 
 

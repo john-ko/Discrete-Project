@@ -14,6 +14,8 @@ public:
 	static const int HUMAN_PIECE = -1;
 	static const int NO_PIECE=0;
 
+	static const int OUT_OF_BOUNDS = 2;
+
 
 private:
 	//Do not alter the values of numRows or numcols. 
@@ -41,11 +43,17 @@ public:
 
 	// void isPointlessMove(Move move, char turn);
 	void getBestMove(int** gameState, std::vector<Move> moves);
-	bool checkDiagnals(int** gameState, Move move);
-	bool inBounds(int, int);
-	std::vector<std::pair<int,int>> getDirections();
-	void checkDirections();
+	bool inBounds(int col, int row);
 
+	std::vector<std::pair<int,int>> getDirections();
+
+	void checkDirections(int**);
+
+	std::pair<int, int>getOpposite(int,int);
+	std::pair<int, int>getOpposite(std::pair<int, int>);
+
+	int getPlayer(int**, int, int);
+	int getPlayer(int**, std::pair<int,int>);
 
 
 

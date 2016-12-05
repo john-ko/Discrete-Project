@@ -87,6 +87,27 @@ TEST_F(AIShellTest, GettersTest) {
 	}
 }
 
+TEST_F(AIShellTest, OppositeDirectionTest) {
+	std::pair<int,int> pair;
+
+	// top right => bottom left
+	pair = shell->getOpposite(1,1);
+	EXPECT_EQ(pair.first, -1);
+	EXPECT_EQ(pair.second, -1);
+
+	// right => left
+	pair = shell->getOpposite(0,1);
+	EXPECT_EQ(pair.first, 0);
+	EXPECT_EQ(pair.second, -1);
+
+	// bottom left => top left
+	pair = shell->getOpposite(-1,1);
+	EXPECT_EQ(pair.first, 1);
+	EXPECT_EQ(pair.second, -1);
+
+
+}
+
 TEST_F(AIShellTest, DirectionsTest) {
 
 	// pretty much copy and pasted :p
